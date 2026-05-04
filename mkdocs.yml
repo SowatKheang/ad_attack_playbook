@@ -1,0 +1,129 @@
+
+site_name: Windows AD Attack Playbook v1.0.0
+site_description: Attack reference covering recon → domain dominance, with explanations of why each technique chains.
+site_url: https://sowatkheang.github.io/ad_attack_playbook
+repo_url: https://github.com/SowatKheang/ad_attack_playbook
+repo_name: ad_attack_playbook
+edit_uri: edit/main/docs/
+copyright: For authorized security testing only.
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Dark mode (default)
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+  font:
+    text: IBM Plex Sans
+    code: JetBrains Mono
+  features:
+    - navigation.instant       # SPA-style navigation
+    - navigation.tracking      # update URL with active anchor
+    - navigation.tabs          # top-level sections as tabs
+    - navigation.tabs.sticky
+    - navigation.sections      # group items in sidebar
+    - navigation.expand
+    - navigation.top           # back-to-top button
+    - navigation.footer
+    - toc.follow               # active TOC item follows scroll
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy        # one-click copy on every code block
+    - content.code.annotate
+    - content.action.edit      # edit this page link
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/style.css
+
+markdown_extensions:
+  - admonition                  
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: "¶"
+      toc_depth: 3
+  - pymdownx.details             # collapsible admonitions
+  - pymdownx.superfences         # nested fences, mermaid
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.keys                # ++ctrl+c++ etc.
+  - pymdownx.smartsymbols
+  - pymdownx.tilde
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - tags
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/SowatKheang/ad_attack_playbook
+  generator: false
+
+nav:
+  - Home: index.md
+  - Phases:
+      - "01· Reconnaissance & Enumeration": 01-reconnaissance-enumeration.md
+      - "02· Clock Skew Management": 02-clock-skew-management.md
+      - "03· Initial Access (No Creds)": 03-initial-access-no-creds.md
+      - "04· Post-Exploitation With Creds": 04-post-exploitation-with-creds.md
+      - "05· ADCS Certificate Attacks (ESC1–13)": 05-adcs-certificate-attacks-esc113.md
+      - "06· gMSA Attacks": 06-gmsa-attacks.md
+      - "07· JEA (Just Enough Administration) Bypass": 07-jea-just-enough-administration-bypass.md
+      - "08· Cross-Forest Attacks": 08-cross-forest-attacks.md
+      - "09· DLL Hijacking": 09-dll-hijacking.md
+      - "10· WSUS Attack (Fake Update Server)": 10-wsus-attack-fake-update-server.md
+      - "11· Lateral Movement": 11-lateral-movement.md
+      - "12· Privilege Escalation (Local)": 12-privilege-escalation-local.md
+      - "13· Domain Dominance (DCSync, Golden, Silver)": 13-domain-dominance-dcsync-golden-silver.md
+      - "14· bloodyAD Quick Reference": 14-bloodyad-quick-reference.md
+      - "15· LAPS Attacks": 15-laps-attacks.md
+      - "16· GPP / SYSVOL Credential Attacks": 16-gpp-sysvol-credential-attacks.md
+      - "17· DSRM (Directory Services Restore Mode) Abuse": 17-dsrm-directory-services-restore-mode-abuse.md
+      - "18· SCCM / ConfigMgr Attacks": 18-sccm-configmgr-attacks.md
+      - "19· Trust Attacks": 19-trust-attacks.md
+      - "20· Credential Attacks (Additional)": 20-credential-attacks-additional.md
+      - "21· Persistence Techniques": 21-persistence-techniques.md
+      - "22· Coercion Attacks": 22-coercion-attacks.md
+      - "23· NTLM Relay Advanced": 23-ntlm-relay-advanced.md
+      - "24· Azure AD / Hybrid Attacks": 24-azure-ad-hybrid-attacks.md
+      - "25· Defense Evasion & OPSEC": 25-defense-evasion-opsec.md
+      - "26· Snaffler / Credential Hunting": 26-snaffler-credential-hunting.md
+  - Reference:
+      - "Attack Decision Tree": reference/attack-decision-tree.md
+      - "Quick Reference: Tools & Hash Modes": reference/quick-reference-tools-hash-modes.md
+      - "Gotchas & Tips": reference/gotchas-tips.md

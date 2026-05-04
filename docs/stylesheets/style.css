@@ -1,0 +1,133 @@
+
+/* 
+  DREAMY #EAEBED 
+  OCEAN #006989
+*/
+
+* {
+  --md-primary-fg-color: #006989 !important;
+  --md-primary-fg-color--light: #098ab1 !important;
+  --md-primary-fg-color--dark: #015d79 !important;
+  --md-primary-bg-color: #EAEBED !important;
+  --md-primary-bg-color--light: #ffffffb3 !important;
+}
+
+
+/* Make code blocks slightly denser, more terminal-feeling */
+.md-typeset code,
+.md-typeset pre {
+  font-feature-settings: "liga" 0;
+  font-size: 0.78rem;
+}
+
+.md-typeset pre > code {
+  line-height: 1.55;
+}
+
+/* Tighten the admonition spacing and give each callout type a distinct accent */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 4px;
+  border-left-width: 4px;
+}
+
+
+/* "What leads here" warning (amber) */
+.md-typeset .admonition.warning > .admonition-title,
+.md-typeset details.warning > summary {
+  background-color: rgba(255, 179, 71, 0.08);
+}
+
+/* "Why this works" info (cyan) */
+.md-typeset .admonition.info > .admonition-title,
+.md-typeset details.info > summary {
+  background-color: rgba(90, 215, 255, 0.08);
+}
+
+/* "Leads to"  success (magenta-ish blue) */
+.md-typeset .admonition.success > .admonition-title,
+.md-typeset details.success > summary {
+  background-color: rgba(108, 255, 169, 0.102);
+}
+
+/* "Thought process"  tip (yellow) */
+.md-typeset .admonition.tip > .admonition-title,
+.md-typeset details.tip > summary {
+  background-color: rgba(245, 230, 99, 0.08);
+}
+
+/* Phase numbers in nav  give them a monospace tab feel */
+.md-nav__item--section > .md-nav__link {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Heading anchors: make them more visible on hover */
+.md-typeset h3 .headerlink,
+.md-typeset h2 .headerlink {
+  opacity: 0.3;
+}
+.md-typeset h3:hover .headerlink,
+.md-typeset h2:hover .headerlink {
+  opacity: 1;
+}
+
+/* Make the attack-id-style sub-headings pop */
+.md-typeset h3 {
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  padding-top: 1.2rem;
+  margin-top: 2rem;
+}
+
+/* Dark mode: sharper accent on links */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #015d79;
+  --md-accent-fg-color: #098ab1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a {
+  color: var(--md-accent-fg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(108, 142, 255, 0.08);
+  color: #098ab1;
+}
+
+/* Grid cards on landing page */
+.md-typeset .grid.cards > ul > li {
+  border-left: 3px solid var(--md-primary-fg-color);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  border-left-color: var(--md-accent-fg-color);
+  transform: translateY(-2px);
+}
+
+/* Code block titles (from `title="..."` on fences)  terminal-tab look */
+.md-typeset .highlight span.filename {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--md-code-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Subtle scanline / grid background only on the body, not in content */
+[data-md-color-scheme="slate"] body {
+  background-image:
+    linear-gradient(rgba(108, 255, 138, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108, 255, 138, 0.012) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
+}
+
+/* The "edit this page" pencil icon  make it more prominent so editing is obvious */
+.md-content__button {
+  opacity: 0.6;
+}
+.md-content__button:hover {
+  opacity: 1;
+}
